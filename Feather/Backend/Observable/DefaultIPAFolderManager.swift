@@ -24,8 +24,11 @@ final class DefaultIPAFolderManager: ObservableObject {
 	/// Saves a security-scoped bookmark for the given folder URL.
 	/// The caller must have already granted access (e.g. via a folder picker).
 	static func saveFolder(_ url: URL) throws {
+		// On iOS, security-scoped access is implicit: a bookmark created from a
+		// document/folder-picker URL carries the security scope automatically.
+		// (`.withSecurityScope` is macOS-only.)
 		let bookmarkData = try url.bookmarkData(
-			options: [.withSecurityScope],
+			options: .minimalBookmark,
 			includingResourceValuesForKeys: nil,
 			relativeTo: nil
 		)
@@ -51,7 +54,7 @@ final class DefaultIPAFolderManager: ObservableObject {
 		guard
 			let url = try? URL(
 				resolvingBookmarkData: data,
-				options: .withSecurityScope,
+				options: [],
 				relativeTo: nil,
 				bookmarkDataIsStale: &isStale
 			)
