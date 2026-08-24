@@ -13,6 +13,7 @@ import NimbleViews
 struct LibraryView: View {
 	@StateObject var downloadManager = DownloadManager.shared
 	@StateObject var updateManager = UpdateManager.shared
+	@StateObject private var _ipaFolderManager = DefaultIPAFolderManager.shared
 	
 	@State private var _selectedInfoAppPresenting: AnyApp?
 	@State private var _selectedSigningAppPresenting: AnyApp?
@@ -198,9 +199,11 @@ struct LibraryView: View {
 			}
 			.sheet(isPresented: $_isImportingPresenting) {
 				FileImporterRepresentableView(
-					allowedContentTypes:  [.ipa, .tipa],
+					allowedContentTypes: [.ipa, .tipa],
 					allowsMultipleSelection: true,
+					startingDirectoryURL: _ipaFolderManager.startingDirectoryURL,
 					onDocumentsPicked: { urls in
+						_ipaFolderManager.stopAccessing()
 						guard !urls.isEmpty else { return }
 						
 						for url in urls {

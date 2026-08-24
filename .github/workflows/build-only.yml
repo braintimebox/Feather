@@ -1,0 +1,25 @@
+name: Build Only
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode_26.3.0.app
+
+      - name: Compile Feather (iphoneos)
+        run: |
+          make iphoneos
+
+      - name: Verify IPA produced
+        run: |
+          ls -la packages/

@@ -15,6 +15,8 @@ import IDeviceSwift
 struct SettingsView: View {
 	@AppStorage("feather.selectedCert") private var _storedSelectedCert: Int = 0
 	@State private var _currentIcon: String? = UIApplication.shared.alternateIconName
+	@State private var _isDefaultIPAFolderPickerPresenting = false
+	@StateObject private var _ipaFolderManager = DefaultIPAFolderManager.shared
 	
 	// MARK: Fetch
 	@FetchRequest(
@@ -87,6 +89,24 @@ struct SettingsView: View {
 					Text(.localized("Configure the apps way of installing, its zip compression levels, and custom modifications to apps."))
 				}
                 
+				NBSection(.localized("File Management")) {
+				Button {
+				_isDefaultIPAFolderPickerPresenting = true
+				} label: {
+				HStack {
+				Label(.localized("Default IPA Folder"), systemImage: "folder.badge.gearshape")
+				Spacer()
+				if let name = _ipaFolderManager.displayName {
+				Text(name)
+				.font(.footnote)
+				.foregroundColor(.disabled())
+				}
+				}
+				}
+				} footer: {
+				Text(.localized("The folder opened by default when importing IPA files."))
+				}
+				
 				_directories()
                 
 				Section {
@@ -95,6 +115,14 @@ struct SettingsView: View {
 					}
 				} footer: {
 					Text(.localized("Reset the applications sources, certificates, apps, and general contents."))
+				}
+			}
+			.sheet(isPresented: $_isDefaultIPAFolderPickerPresenting) {
+				FolderPickerRepresentableView { url in
+					if let url {
+						try? DefaultIPAFolderManager.saveFolder(url)
+					}
+					_isDefaultIPAFolderPickerPresenting = false
 				}
 			}
 		}
