@@ -28,7 +28,7 @@ final class DefaultIPAFolderManager: ObservableObject {
 		// document/folder-picker URL carries the security scope automatically.
 		// (`.withSecurityScope` is macOS-only.)
 		let bookmarkData = try url.bookmarkData(
-			options: [.withSecurityScope],
+			options: .minimalBookmark,
 			includingResourceValuesForKeys: nil,
 			relativeTo: nil
 		)
