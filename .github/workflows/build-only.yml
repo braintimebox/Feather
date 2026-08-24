@@ -23,3 +23,11 @@ jobs:
       - name: Verify IPA produced
         run: |
           ls -la packages/
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Feather-ipa
+          path: packages/*.ipa
+          if-no-files-found: error
+          retention-days: 7
