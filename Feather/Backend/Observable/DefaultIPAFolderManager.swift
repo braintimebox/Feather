@@ -25,7 +25,7 @@ final class DefaultIPAFolderManager: ObservableObject {
 	/// The caller must have already granted access (e.g. via a folder picker).
 	static func saveFolder(_ url: URL) throws {
 		let bookmarkData = try url.bookmarkData(
-			options: .minimalBookmark,
+			options: [.withSecurityScope],
 			includingResourceValuesForKeys: nil,
 			relativeTo: nil
 		)

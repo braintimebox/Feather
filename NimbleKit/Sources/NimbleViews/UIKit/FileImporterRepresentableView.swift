@@ -31,13 +31,12 @@ public struct FileImporterRepresentableView: UIViewControllerRepresentable {
 	}
 	
 	public func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
-		let picker = UIDocumentPickerViewController(
-			forOpeningContentTypes: allowedContentTypes,
-			asCopy: true,
-			initialDirectoryURL: startingDirectoryURL
-		)
+		let picker = UIDocumentPickerViewController(forOpeningContentTypes: allowedContentTypes, asCopy: true)
 		picker.delegate = context.coordinator
 		picker.allowsMultipleSelection = allowsMultipleSelection
+		if let startingDirectoryURL {
+			picker.directoryURL = startingDirectoryURL
+		}
 		return picker
 	}
 	
