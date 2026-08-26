@@ -10,6 +10,7 @@ import UIKit.UIImpactFeedbackGenerator
 
 // MARK: - Class extension: Imported Apps
 extension Storage {
+	@discardableResult
 	func addImported(
 		uuid: String,
 		source: URL? = nil,
@@ -20,7 +21,7 @@ extension Storage {
 		appIcon: String? = nil,
 		
 		completion: @escaping (Error?) -> Void
-	) {
+	) -> Imported {
 		let generator = UIImpactFeedbackGenerator(style: .light)
 		
 		let new = Imported(context: context)
@@ -37,5 +38,6 @@ extension Storage {
 		saveContext()
 		generator.impactOccurred()
 		completion(nil)
+		return new
 	}
 }

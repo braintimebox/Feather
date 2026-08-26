@@ -17,7 +17,7 @@ enum FR {
 		_ ipa: URL,
 		download: Download? = nil,
 		sourceProvenance: SourceAppProvenance? = nil,
-		completion: @escaping (Error?) -> Void
+		completion: @escaping (Error?, AppInfoPresentable?) -> Void
 	) {
 		Task.detached {
 			let handler = AppFileHandler(
@@ -30,15 +30,15 @@ enum FR {
 				try await handler.copy()
 				try await handler.extract()
 				try await handler.move()
-				try await handler.addToDatabase()
+				let imported = try await handler.addToDatabase()
 				try? await handler.clean()
 				await MainActor.run {
-					completion(nil)
+					completion(nil, imported)
 				}
 			} catch {
 				try? await handler.clean()
 				await MainActor.run {
-					completion(error)
+					completion(error, nil)
 				}
 			}
 		}

@@ -19,8 +19,6 @@ struct LibraryView: View {
 	@State private var _selectedSigningAppPresenting: AnyApp?
 	@State private var _selectedInstallAppPresenting: AnyApp?
 	@State private var _isImportingPresenting = false
-	@State private var _isDownloadingPresenting = false
-	@State private var _alertDownloadString: String = "" // for _isDownloadingPresenting
 	@State private var _updateCheckRotation = 0.0
 	@State private var _isUpdateCheckCompleteVisible = false
 	
@@ -133,10 +131,8 @@ struct LibraryView: View {
 						} description: {
 							Text(.localized("Get started by importing your first IPA file."))
 						} actions: {
-							Menu {
-								_importActions()
-							} label: {
-								NBButton(.localized("Import"), style: .text)
+							Button(.localized("Import from Files"), systemImage: "folder") {
+								_isImportingPresenting = true
 							}
 						}
 					}
@@ -175,12 +171,11 @@ struct LibraryView: View {
 						.accessibilityLabel(.localized("Check for Updates"))
 					}
 					
-					NBToolbarMenu(
+					NBToolbarButton(
 						systemImage: "plus",
-						style: .icon,
 						placement: .topBarTrailing
 					) {
-						_importActions()
+						_isImportingPresenting = true
 					}
 				}
 			}
@@ -209,23 +204,14 @@ struct LibraryView: View {
 						for url in urls {
 							let id = "FeatherManualDownload_\(UUID().uuidString)"
 							let dl = downloadManager.startArchive(from: url, id: id)
-							try? downloadManager.handlePachageFile(url: url, dl: dl)
+							try? downloadManager.handlePachageFile(url: url, dl: dl) { app in
+								guard let app else { return }
+								SigningFlow.autoSign(app: app)
+							}
 						}
 					}
 				)
 				.ignoresSafeArea()
-			}
-			.alert(.localized("Import from URL"), isPresented: $_isDownloadingPresenting) {
-				TextField(.localized("URL"), text: $_alertDownloadString)
-					.textInputAutocapitalization(.never)
-				Button(.localized("Cancel"), role: .cancel) {
-					_alertDownloadString = ""
-				}
-				Button(.localized("OK")) {
-					if let url = URL(string: _alertDownloadString) {
-						_ = downloadManager.startDownload(from: url, id: "FeatherManualDownload_\(UUID().uuidString)")
-					}
-				}
 			}
 			.onReceive(NotificationCenter.default.publisher(for: Notification.Name("Feather.installApp"))) { _ in
 				if let latest = _signedApps.first {
@@ -240,19 +226,6 @@ struct LibraryView: View {
 			.onChange(of: updateManager.isChecking) { isChecking in
 				_handleUpdateCheckStateChange(isChecking)
 			}
-		}
-	}
-}
-
-// MARK: - Extension: View
-extension LibraryView {
-	@ViewBuilder
-	private func _importActions() -> some View {
-		Button(.localized("Import from Files"), systemImage: "folder") {
-			_isImportingPresenting = true
-		}
-		Button(.localized("Import from URL"), systemImage: "globe") {
-			_isDownloadingPresenting = true
 		}
 	}
 }

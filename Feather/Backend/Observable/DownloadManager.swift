@@ -175,8 +175,8 @@ class DownloadManager: NSObject, ObservableObject {
 
 extension DownloadManager: URLSessionDownloadDelegate {
 	
-	func handlePachageFile(url: URL, dl: Download) throws {
-		FR.handlePackageFile(url, download: dl) { err in
+	func handlePachageFile(url: URL, dl: Download, onComplete: ((AppInfoPresentable?) -> Void)? = nil) throws {
+		FR.handlePackageFile(url, download: dl) { err, app in
 			if err != nil {
 				let generator = UINotificationFeedbackGenerator()
 				generator.notificationOccurred(.error)
@@ -194,6 +194,8 @@ extension DownloadManager: URLSessionDownloadDelegate {
 					self._updateBackgroundAudioState()
 					#endif
 				}
+				
+				onComplete?(app)
 			}
 		}
 	}

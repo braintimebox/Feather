@@ -105,16 +105,17 @@ final class AppFileHandler: NSObject, @unchecked Sendable {
 		try? _fileManager.removeItem(at: _uniqueWorkDir)
 	}
 	
-	func addToDatabase() async throws {
+	@discardableResult
+	func addToDatabase() async throws -> Imported? {
 		let app = try await _directory()
 		
 		guard let appUrl = _fileManager.getPath(in: app, for: "app") else {
-			return
+			return nil
 		}
 		
 		let bundle = Bundle(url: appUrl)
 		
-		Storage.shared.addImported(
+		let imported = Storage.shared.addImported(
 			uuid: _uuid,
 			source: _sourceProvenance?.sourceRepositoryURL,
 			appName: bundle?.name,
@@ -130,6 +131,8 @@ final class AppFileHandler: NSObject, @unchecked Sendable {
 				provenance: sourceProvenance
 			)
 		}
+		
+		return imported
 	}
 	
 	private func _directory() async throws -> URL {
